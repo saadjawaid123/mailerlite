@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  apache:
+    container_name: 'mailerlite-apache'
+    build:
+      context: ./docker/container/apache2
+      args:
+        HOST_MACHINE_UNAME: ${HOST_MACHINE_UNAME}
+        HOST_MACHINE_UID: ${HOST_MACHINE_UID}
+        HOST_MACHINE_GID: ${HOST_MACHINE_GID}
+    image: mailerlite/apache:2.4.54
+    restart: always
+    volumes:
+      - .:/var/www/html
+      - ./docker/container/apache2/start-container.sh:/bin/start-container
+      - ./docker/container/apache2/conf/local.conf:/etc/apache2/sites-available/local.conf
+    ports:
+      - 8088:80
+  php-fpm:
+    container_name: 'mailerlite-php'
+    build:
+      context: ./docker/container/php
+      args:
+        HOST_MACHINE_UNAME: ${HOST_MACHINE_UNAME}
+        HOST_MACHINE_UID: ${HOST_MACHINE_UID}
+        HOST_MACHINE_GID: ${HOST_MACHINE_GID}
+        ENVIRONMENT: ${APP_ENV}
+    image: mailerlite/php-fpm:7.4-fpm
+    restart: always
+    volumes:
+      - ./docker/container/php/data:/data
+      - .:/var/www/html
+      - ./docker/container/php/conf/dev-fpm.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ./docker/container/php/php-init.sh:/bin/php-init
+      - ./docker/container/mysql/data:/mysql-data
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - apache
+      - mysql
+  mysql:
+    container_name: 'mailerlite-mysql'
+    build:
+      context: ./docker/container/mysql
+    image: mailerlite/mysql:5.7.41
+    restart: always
+    volumes:
+      - ./docker/container/mysql/start-container.sh:/bin/start-container
+      - ./docker/container/mysql/conf:/etc/mysql/mysql.conf.d
+      - ./docker/container/mysql/data:/var/lib/mysql
+    ports:
+      - 8089:3306
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
