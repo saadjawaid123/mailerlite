@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/mailerlite.iml" filepath="$PROJECT_DIR$/.idea/mailerlite.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/mailer-lite.iml" filepath="$PROJECT_DIR$/.idea/mailer-lite.iml" />
     </modules>
   </component>
 </project>
